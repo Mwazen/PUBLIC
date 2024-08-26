@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer, Workout, and Learning Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        h1, h2, h3 {
+            color: #e94560;
+            text-align: center;
+        }
+
+        .welcome-message {
+            font-family: 'Tajawal', sans-serif;
+            font-size: 24px;
+            color: #4ecca3;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #0f3460;
+            border-radius: 5px;
+        }
+
+        .icon {
+            font-size: 24px;
+            color: #e94560;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .item {
+            background-color: #0f3460;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e94560;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+            .checkbox.checked {
+                background-color: #e94560;
+            }
+
+        .button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #16213e;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .close:hover {
+                color: #e94560;
+            }
+
+        #imageContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .imageBox {
+            background-color: #0f3460;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+            .imageBox img {
+                max-width: 100%;
+                height: auto;
+                margin-bottom: 10px;
+            }
+
+            .imageBox textarea {
+                width: 100%;
+                height: 50px;
+                margin-bottom: 10px;
+                background-color: #16213e;
+                color: #e0e0e0;
+                border: 1px solid #e94560;
+                border-radius: 3px;
+            }
+
+        .circle {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #e94560;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+            color: #e0e0e0;
+        }
+
+            .circle.checked {
+                background-color: #e94560;
+                color: #fff;
+            }
+
+        #circle-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        #languageToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #learningContainer {
+            margin-top: 20px;
+        }
+
+        .learningItem {
+            background-color: #0f3460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        #learningModal textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+            background-color: #16213e;
+            color: #e0e0e0;
+            border: 1px solid #e94560;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <button id="languageToggle" onclick="toggleLanguage()">عربي</button>
+    <div class="container">
+        <div class="welcome-message">
+            Welcome, to your Prayer, Workout, and Learning Tracker!(Public)
+        </div>
+
+        <h1>Prayer, Workout, and Learning Tracker</h1>
+
+        <!-- Prayer Section -->
+        <h2>Prayers</h2>
+        <i class="fas fa-pray icon" onclick="toggleSection('prayer-container')"></i>
+        <div id="prayer-container" style="display: none;"></div>
+        <button class="button" onclick="resetCheckboxes('prayer')">Reset Prayers</button>
+
+        <!-- Workout Section -->
+        <h2>Workouts</h2>
+        <i class="fas fa-dumbbell icon" onclick="toggleSection('workout-container')"></i>
+        <div id="workout-container" style="display: none;"></div>
+        <button class="button" onclick="resetCheckboxes('workout')">Reset Workouts</button>
+
+        <!-- Learning Section -->
+        <h2>Learning</h2>
+        <i class="fas fa-book icon" onclick="toggleSection('learning-container')"></i>
+        <div id="learning-container" style="display: none;"></div>
+        <button class="button" onclick="resetCheckboxes('learning')">Reset Learning</button>
+
+        <!-- Circle Section -->
+        <i class="fas fa-times icon" onclick="toggleCircleSection()"></i>
+        <div id="circle-container"></div>
+
+        <!-- Workout Modal -->
+        <div id="workoutModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('workoutModal')">&times;</span>
+                <h2 id="modalDay"></h2>
+                <label for="muscleGroup">Which muscle group are you training today?</label>
+                <input type="text" id="muscleGroup" name="muscleGroup">
+                <div id="imageContainer"></div>
+                <button class="button" onclick="addImageBox()">Add Image</button>
+                <button class="button" onclick="saveWorkout()">Save Workout</button>
+            </div>
+        </div>
+
+        <!-- Learning Modal -->
+        <div id="learningModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('learningModal')">&times;</span>
+                <h2 id="learningModalDay"></h2>
+                <textarea id="learningContent" placeholder="What did you learn today?"></textarea>
+                <input type="file" id="learningImage" accept="image/*">
+                <button class="button" onclick="saveLearning()">Save Learning</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+        const prayerDays = 30;
+        const workoutDays = 30;
+        const learningDays = 30;
+        const circleCount = 100;
+        let prayerContainer = document.getElementById('prayer-container');
+        let workoutContainer = document.getElementById('workout-container');
+        let learningContainer = document.getElementById('learning-container');
+        let workoutData = {};
+        let learningData = {};
+        let circleContainer = document.getElementById('circle-container');
+        let currentLanguage = 'en';
+
+        // Set start date to yesterday
+        let startDate = new Date();
+        startDate.setDate(startDate.getDate() - 1);
+        let prayerStartDate = new Date(startDate);
+        let workoutStartDate = new Date(startDate);
+        let learningStartDate = new Date(startDate);
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function getDates(startDate, days) {
+            let dates = [];
+            for (let i = 0; i < days; i++) {
+                let date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+                dates.push(formatDate(date));
+            }
+            return dates;
+        }
+
+        let prayerDates = getDates(prayerStartDate, prayerDays);
+        let workoutDates = getDates(workoutStartDate, workoutDays);
+        let learningDates = getDates(learningStartDate, learningDays);
+
+        function initializeLocalStorage() {
+            if (!localStorage.getItem('circles')) {
+                let circles = Array(circleCount).fill(false);
+                localStorage.setItem('circles', JSON.stringify(circles));
+            }
+            if (!localStorage.getItem('prayerData')) {
+                localStorage.setItem('prayerData', JSON.stringify({}));
+            }
+            if (!localStorage.getItem('workoutData')) {
+                localStorage.setItem('workoutData', JSON.stringify({}));
+            }
+            if (!localStorage.getItem('learningData')) {
+                localStorage.setItem('learningData', JSON.stringify({}));
+            }
+        }
+
+        function createPrayerList() {
+            prayerContainer.innerHTML = '';
+            for (let i = 0; i < prayerDays; i++) {
+                let date = new Date(prayerStartDate);
+                date.setDate(date.getDate() + i);
+                let dateStr = formatDate(date);
+                let dayDiv = document.createElement('div');
+                dayDiv.innerHTML = `<h3>${dateStr}</h3>`;
+                let prayerList = document.createElement('div');
+                prayerList.className = 'list';
+
+                for (let prayer of prayers) {
+                    let prayerItem = document.createElement('div');
+                    prayerItem.className = 'item';
+                    prayerItem.innerHTML = `
+                                <span>${prayer}</span>
+                                <div class="checkbox" id="prayer-${dateStr}-${prayer}" onclick="toggleCheckbox(this, 'prayer', '${dateStr}', '${prayer}')"></div>
+                            `;
+                    prayerList.appendChild(prayerItem);
+                }
+
+                dayDiv.appendChild(prayerList);
+                prayerContainer.appendChild(dayDiv);
+            }
+            loadPrayerData();
+        }
+
+        function createWorkoutList() {
+            workoutContainer.innerHTML = '';
+            for (let i = 0; i < workoutDays; i++) {
+                let date = new Date(workoutStartDate);
+                date.setDate(date.getDate() + i);
+                let dateStr = formatDate(date);
+                let dayDiv = document.createElement('div');
+                dayDiv.innerHTML = `<h3>${dateStr}</h3>`;
+                let workoutList = document.createElement('div');
+                workoutList.className = 'list';
+
+                let restItem = document.createElement('div');
+                restItem.className = 'item';
+                restItem.innerHTML = `
+                            <span>${currentLanguage === 'en' ? 'Rest' : 'راحة'}</span>
+                            <div class="checkbox" id="workout-${dateStr}-rest" onclick="toggleCheckbox(this, 'workout', '${dateStr}', 'rest')"></div>
+                        `;
+                workoutList.appendChild(restItem);
+
+                let workoutItem = document.createElement('div');
+                workoutItem.className = 'item';
+                workoutItem.innerHTML = `
+                            <span>${currentLanguage === 'en' ? 'Workout' : 'تمرين'}</span>
+                            <div class="checkbox" id="workout-${dateStr}-workout" onclick="toggleCheckbox(this, 'workout', '${dateStr}', 'workout'); openWorkoutModal('${dateStr}')"></div>
+                        `;
+                workoutList.appendChild(workoutItem);
+
+                dayDiv.appendChild(workoutList);
+                workoutContainer.appendChild(dayDiv);
+            }
+            loadWorkoutData();
+        }
+
+        function createLearningList() {
+            learningContainer.innerHTML = '';
+            for (let i = 0; i < learningDays; i++) {
+                let date = new Date(learningStartDate);
+                date.setDate(date.getDate() + i);
+                let dateStr = formatDate(date);
+                let learningItem = document.createElement('div');
+                learningItem.className = 'learningItem';
+                learningItem.innerHTML = `${dateStr} - ${currentLanguage === 'en' ? 'Learning' : 'تعلم'}`;
+                learningItem.onclick = () => openLearningModal(dateStr);
+                learningContainer.appendChild(learningItem);
+            }
+            loadLearningData();
+        }
+
+        function createCircleList() {
+            circleContainer.innerHTML = '';
+            for (let i = 1; i <= circleCount; i++) {
+                let circleDiv = document.createElement('div');
+                circleDiv.className = 'circle';
+                circleDiv.id = `circle-${i}`;
+                circleDiv.innerText = i;
+                circleDiv.onclick = () => toggleCircle(circleDiv);
+                circleContainer.appendChild(circleDiv);
+            }
+            loadCircleData();
+        }
+
+        function toggleCheckbox(checkbox, type, day, action) {
+            checkbox.classList.toggle('checked');
+            saveState();
+        }
+
+        function toggleCircle(circle) {
+            circle.classList.toggle('checked');
+            saveCircleState();
+        }
+
+        function saveState() {
+            let prayerData = JSON.parse(localStorage.getItem('prayerData')) || {};
+            let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
+
+            prayerDates.forEach(date => {
+                prayerData[date] = prayerData[date] || [];
+                prayers.forEach(prayer => {
+                    let checkbox = document.getElementById(`prayer-${date}-${prayer}`);
+                    if (checkbox && checkbox.classList.contains('checked')) {
+                        if (!prayerData[date].includes(prayer)) {
+                            prayerData[date].push(prayer);
+                        }
+                    } else {
+                        prayerData[date] = prayerData[date].filter(p => p !== prayer);
+                    }
+                });
+            });
+
+            workoutDates.forEach(date => {
+                workoutData[date] = workoutData[date] || {};
+                ['rest', 'workout'].forEach(action => {
+                    let checkbox = document.getElementById(`workout-${date}-${action}`);
+                    if (checkbox) {
+                        workoutData[date][action] = checkbox.classList.contains('checked');
+                    }
+                });
+            });
+
+            localStorage.setItem('prayerData', JSON.stringify(prayerData));
+            localStorage.setItem('workoutData', JSON.stringify(workoutData));
+        }
+
+        function saveCircleState() {
+            let circles = [];
+            for (let i = 1; i <= circleCount; i++) {
+                let circle = document.getElementById(`circle-${i}`);
+                circles[i - 1] = circle.classList.contains('checked');
+            }
+            localStorage.setItem('circles', JSON.stringify(circles));
+        }
+
+        function loadPrayerData() {
+            let prayerData = JSON.parse(localStorage.getItem('prayerData'));
+            if (!prayerData) return;
+            for (let date in prayerData) {
+                prayerData[date].forEach(prayer => {
+                    let checkbox = document.getElementById(`prayer-${date}-${prayer}`);
+                    if (checkbox) checkbox.classList.add('checked');
+                });
+            }
+        }
+
+        function loadWorkoutData() {
+            let workoutData = JSON.parse(localStorage.getItem('workoutData'));
+            if (!workoutData) return;
+            for (let date in workoutData) {
+                ['rest', 'workout'].forEach(action => {
+                    let checkbox = document.getElementById(`workout-${date}-${action}`);
+                    if (checkbox) checkbox.classList.toggle('checked', workoutData[date][action]);
+                });
+            }
+        }
+
+        function loadLearningData() {
+            let learningData = JSON.parse(localStorage.getItem('learningData'));
+            if (!learningData) return;
+            for (let date in learningData) {
+                let learningItem = document.querySelector(`.learningItem[data-date="${date}"]`);
+                if (learningItem) {
+                    learningItem.classList.add('completed');
+                    learningItem.title = learningData[date].content;
+                }
+            }
+        }
+
+        function loadCircleData() {
+            let circles = JSON.parse(localStorage.getItem('circles'));
+            if (!circles) return;
+            circles.forEach((checked, index) => {
+                let circle = document.getElementById(`circle-${index + 1}`);
+                if (circle) circle.classList.toggle('checked', checked);
+            });
+        }
+
+        function resetCheckboxes(type) {
+            const confirmation = confirm(currentLanguage === 'en' ? 'Are you sure you want to reset?' : 'هل أنت متأكد من أنك تريد إعادة الضبط؟');
+            if (confirmation) {
+                const checkboxes = document.querySelectorAll(`.checkbox`);
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.id.includes(type)) {
+                        checkbox.classList.remove('checked');
+                    }
+                });
+                if (type === 'learning') {
+                    localStorage.removeItem('learningData');
+                    createLearningList();
+                } else {
+                    saveState();
+                }
+            }
+        }
+
+        function toggleSection(sectionId) {
+            let section = document.getElementById(sectionId);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleCircleSection() {
+            let circleSection = document.getElementById('circle-container');
+            circleSection.style.display = circleSection.style.display === 'none' ? 'grid' : 'none';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function addImageBox() {
+            let container = document.getElementById('imageContainer');
+            let box = document.createElement('div');
+            box.className = 'imageBox';
+            box.innerHTML = `
+                    <img src="https://via.placeholder.com/150" alt="Workout Image">
+                    <textarea placeholder="Add description..."></textarea>
+                    <input type="file" accept="image/*" onchange="previewImage(this)">
+                `;
+            container.appendChild(box);
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    input.previousElementSibling.previousElementSibling.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openWorkoutModal(date) {
+            let modal = document.getElementById('workoutModal');
+            document.getElementById('modalDay').innerText = date;
+            document.getElementById('muscleGroup').value = '';
+            document.getElementById('imageContainer').innerHTML = '';
+            modal.style.display = 'block';
+
+            // Load existing workout data if available
+            let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
+            if (workoutData[date] && workoutData[date].muscleGroup) {
+                document.getElementById('muscleGroup').value = workoutData[date].muscleGroup;
+                workoutData[date].images.forEach(image => {
+                    let box = document.createElement('div');
+                    box.className = 'imageBox';
+                    box.innerHTML = `
+                            <img src="${image.src}" alt="Workout Image">
+                            <textarea>${image.description}</textarea>
+                            <input type="file" accept="image/*" onchange="previewImage(this)">
+                        `;
+                    document.getElementById('imageContainer').appendChild(box);
+                });
+            }
+        }
+
+        function saveWorkout() {
+            let date = document.getElementById('modalDay').innerText;
+            let muscleGroup = document.getElementById('muscleGroup').value;
+            let images = document.querySelectorAll('.imageBox');
+
+            let workout = {
+                muscleGroup,
+                images: [],
+            };
+
+            images.forEach((box) => {
+                workout.images.push({
+                    src: box.querySelector('img').src,
+                    description: box.querySelector('textarea').value
+                });
+            });
+
+            let workoutData = JSON.parse(localStorage.getItem('workoutData')) || {};
+            workoutData[date] = workout;
+            localStorage.setItem('workoutData', JSON.stringify(workoutData));
+            closeModal('workoutModal');
+        }
+
+        function openLearningModal(date) {
+            let modal = document.getElementById('learningModal');
+            document.getElementById('learningModalDay').innerText = date;
+            document.getElementById('learningContent').value = '';
+            document.getElementById('learningImage').value = '';
+            modal.style.display = 'block';
+
+            // Load existing learning data if available
+            let learningData = JSON.parse(localStorage.getItem('learningData')) || {};
+            if (learningData[date]) {
+                document.getElementById('learningContent').value = learningData[date].content;
+                if (learningData[date].image) {
+                    // Display the saved image
+                    let img = document.createElement('img');
+                    img.src = learningData[date].image;
+                    img.style.maxWidth = '100%';
+                    modal.querySelector('.modal-content').insertBefore(img, document.getElementById('learningImage'));
+                }
+            }
+        }
+
+        function saveLearning() {
+            let date = document.getElementById('learningModalDay').innerText;
+            let content = document.getElementById('learningContent').value;
+            let imageFile = document.getElementById('learningImage').files[0];
+
+            let learningData = JSON.parse(localStorage.getItem('learningData')) || {};
+
+            if (imageFile) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    learningData[date] = {
+                        content: content,
+                        image: e.target.result
+                    };
+                    localStorage.setItem('learningData', JSON.stringify(learningData));
+                    closeModal('learningModal');
+                    createLearningList(); // Refresh the learning list
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                learningData[date] = {
+                    content: content
+                };
+                localStorage.setItem('learningData', JSON.stringify(learningData));
+                closeModal('learningModal');
+                createLearningList(); // Refresh the learning list
+            }
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
+            document.getElementById('languageToggle').innerText = currentLanguage === 'en' ? 'عربي' : 'English';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            let languageData = {
+                en: {
+                    welcome: 'Welcome, Mazen, to your Prayer, Workout, and Learning Tracker!',
+                    prayers: 'Prayers',
+                    workouts: 'Workouts',
+                    learning: 'Learning',
+                    resetPrayers: 'Reset Prayers',
+                    resetWorkouts: 'Reset Workouts',
+                    resetLearning: 'Reset Learning',
+                    rest: 'Rest',
+                    workout: 'Workout',
+                    addImage: 'Add Image',
+                    saveWorkout: 'Save Workout',
+                    saveLearning: 'Save Learning',
+                    muscleGroup: 'Which muscle group are you training today?',
+                    learningPrompt: 'What did you learn today?'
+                },
+                ar: {
+                    welcome: 'مرحبًا يا مازن في متعقب الصلاة والتمارين والتعلم!',
+                    prayers: 'الصلوات',
+                    workouts: 'التمارين',
+                    learning: 'التعلم',
+                    resetPrayers: 'إعادة ضبط الصلوات',
+                    resetWorkouts: 'إعادة ضبط التمارين',
+                    resetLearning: 'إعادة ضبط التعلم',
+                    rest: 'راحة',
+                    workout: 'تمرين',
+                    addImage: 'إضافة صورة',
+                    saveWorkout: 'حفظ التمرين',
+                    saveLearning: 'حفظ التعلم',
+                    muscleGroup: 'ما هي مجموعة العضلات التي تتدرب عليها اليوم؟',
+                    learningPrompt: 'ماذا تعلمت اليوم؟'
+                }
+            };
+
+            document.querySelector('.welcome-message').textContent = languageData[currentLanguage].welcome;
+            document.querySelectorAll('h2')[0].textContent = languageData[currentLanguage].prayers;
+            document.querySelectorAll('h2')[1].textContent = languageData[currentLanguage].workouts;
+            document.querySelectorAll('h2')[2].textContent = languageData[currentLanguage].learning;
+            document.querySelectorAll('.button')[0].textContent = languageData[currentLanguage].resetPrayers;
+            document.querySelectorAll('.button')[1].textContent = languageData[currentLanguage].resetWorkouts;
+            document.querySelectorAll('.button')[2].textContent = languageData[currentLanguage].resetLearning;
+
+            // Update workout modal
+            document.querySelector('label[for="muscleGroup"]').textContent = languageData[currentLanguage].muscleGroup;
+            document.querySelector('#workoutModal .button:nth-child(1)').textContent = languageData[currentLanguage].addImage;
+            document.querySelector('#workoutModal .button:nth-child(2)').textContent = languageData[currentLanguage].saveWorkout;
+
+            // Update learning modal
+            document.querySelector('#learningContent').placeholder = languageData[currentLanguage].learningPrompt;
+            document.querySelector('#learningModal .button').textContent = languageData[currentLanguage].saveLearning;
+
+            createPrayerList();
+            createWorkoutList();
+            createLearningList();
+        }
+
+        initializeLocalStorage();
+        createPrayerList();
+        createWorkoutList();
+        createLearningList();
+        createCircleList();
+        updateLanguage();
+    </script>
+</body>
+</html>
